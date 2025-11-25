@@ -1,137 +1,106 @@
-# ♞ Knight Moves (BFS in 2D Grid) — নাইটের সংক্ষিপ্ত পথ
+## ♞ Knight Moves (BFS in a 2D Grid) — Shortest Path for a Knight
 
-## 🔍 সমস্যাটি কী?
+### 🔍 What is the problem?
 
-আমাদের এই সমস্যাটির কাজ হলো একটি ক্লাসিক **‘shortest path’** এর সমাধান করা।  
-সমস্যাটির নির্দিষ্ট লক্ষ্য হলো: দাবাবোর্ডের দুটি স্কয়ার **a** এবং **b** দেওয়া থাকলে,  
-**a থেকে b তে পৌঁছাতে নাইটের সর্বনিম্ন কতগুলো চাল লাগবে!**
+The task is to solve a classic **shortest-path** problem.
 
-এই সমস্যাটিকে একটি **unweighted graph** এর সংক্ষিপ্ততম পথ খোঁজার সমস্যা হিসাবে মডেল করা যেতে পারে।
+Given two squares **a** and **b** on a chessboard, the goal is to determine
+**the minimum number of moves a knight needs to go from a to b**.
 
----
+We can model this as a shortest-path problem on an **unweighted graph**.
 
-## 🎯 মডেলিং
+## 🎯 Modeling the Problem
 
-| ধারণা | অর্থ |
-|--------|------|
-| **নোড (Nodes)** | দাবাবোর্ডের ৬৪টি স্কয়ার হলো এই গ্রাফের নোড |
-| **এজ (Edges)** | দুটি স্কয়ারের মধ্যে একটি বৈধ নাইটের চাল হলো একটি এজ |
-| **Cost** | প্রতিটি চালের cost সমান (অর্থাৎ ১ চাল) |
+| Concept   | Meaning                                 |
+| --------- | --------------------------------------- |
+| **Nodes** | The 64 squares of the chessboard        |
+| **Edges** | A valid knight move between two squares |
+| **Cost**  | Each move costs the same (1 step)       |
 
-তাই এই ধরনের গ্রাফে সংক্ষিপ্ততম পথ খোঁজার জন্য সবচেয়ে আদর্শ অ্যালগরিদম হলো  
-**Breadth-First Search (BFS)**।
+Since the graph is unweighted, the ideal algorithm for finding the shortest path is **Breadth-First Search (BFS)**.
 
 ---
 
-## 🧠 BFS কী?
+## 🧠 What is BFS?
 
-**BFS**, বা **ব্রেডথ-ফার্স্ট সার্চ**, হলো একটি গ্রাফ ট্রাভার্সাল অ্যালগরিদম যা শুরু নোড থেকে শুরু করে  
-গ্রাফটিকে দূরত্ব অনুযায়ী স্তর-স্তরে (**level by level**) search করে।  
+**BFS (Breadth-First Search)** is a graph-traversal algorithm that starts from a source node and explores the graph **level by level** based on distance.
 
-এটি **Queue** ডেটা স্ট্রাকচার ব্যবহার করে এবং নিশ্চিত করে যে সংক্ষিপ্ততম পথে পৌঁছানোর আগে  
-এটি কোনো দীর্ঘ পথে যাবে না।  
+It uses a **queue** data structure and guarantees that it will always find the shortest path first before going through any longer path.
 
-ওজনহীন গ্রাফে (যেমন এই নাইটের সমস্যা), এটিই সংক্ষিপ্ততম পথ খুঁজে বের করার সবচেয়ে কার্যকর উপায়।
+In unweighted graphs (like our knight-move graph), BFS is the **most efficient** way to compute shortest paths.
 
 ---
 
-## 🎲 বোর্ড এবং নাইটের চাল রিপ্রেজেন্ট করা
+## 🎲 Representing the Board and Knight's Moves
 
-BFS অ্যালগরিদম ব্যবহার করার আগে আমাদের গ্রাফটিকে কোডে রিপ্রেজেন্ট করতে হবে,  
-অর্থাৎ একটি নাইট কীভাবে এক স্কয়ার থেকে অন্য স্কয়ারে যেতে পারে তা সংজ্ঞায়িত করতে হবে।
-
-### ♘ নাইটের ৮টি সম্ভাব্য চাল
-
-(i, j) পজিশন থেকে নাইট সর্বোচ্চ ৮টি ভিন্ন স্কয়ারে যেতে পারে:
-(i-2, j+1)
-(i-2, j-1)
-(i-1, j+2)
-(i-1, j-2)
-(i+1, j+2)
-(i+1, j-2)
-(i+2, j+1)
-(i+2, j-1)
-
+Before using BFS, we must represent the graph in code — specifically, how a knight moves from one square to another.
 
 ---
 
-### 💻 কোডে রূপান্তর
+## ♘ Knight’s 8 Possible Moves
+
+From a position **(i, j)**, a knight can move to 8 possible squares:
+
+* (i−2, j+1)
+* (i−2, j−1)
+* (i−1, j+2)
+* (i−1, j−2)
+* (i+1, j+2)
+* (i+1, j−2)
+* (i+2, j+1)
+* (i+2, j−1)
+
+---
+
+## 💻 Converting into Code
 
 ```cpp
-// kr[] অ্যারে ৮টি সম্ভাব্য সারির পরিবর্তন সংরক্ষণ করে 
-const int kr[] = {2, 2, -2, -2, 1, 1, -1, -1}; 
+// kr[] stores the row offsets for the 8 knight moves
+const int kr[] = {2, 2, -2, -2, 1, 1, -1, -1};
 
-// kc[] অ্যারে ৮টি সম্ভাব্য কলামের পরিবর্তন সংরক্ষণ করে 
-const int kc[] = {1, -1, 1, -1, 2, -2, 2, -2}; 
+// kc[] stores the column offsets for the 8 knight moves
+const int kc[] = {1, -1, 1, -1, 2, -2, 2, -2};
 ```
-এখন, `i = 0` থেকে `7` পর্যন্ত একটি লুপ চালিয়ে  
-`new_r = r + kr[i]` এবং `new_c = c + kc[i]` করলেই  
-আমরা যেকোনো স্কয়ার `(r, c)` থেকে ৮টি সম্ভাব্য নতুন স্কয়ার পেয়ে যাব।
+
+Looping `i = 0` to `7`, we compute:
+
+```
+new_r = r + kr[i]
+new_c = c + kc[i]
+```
+
+This gives all 8 possible new squares from position `(r, c)`.
 
 ---
 
-## ⚙️ Breadth-First Search (BFS) এর ব্যবহার
+## ⚙️ Using Breadth-First Search (BFS)
 
-BFS এই সমস্যার জন্য উপযুক্ত কারণ এটি গ্রাফটিকে **layer অনুযায়ী** explore করে।  
+BFS is ideal for this problem because it explores the graph in **layers**:
 
-- **Layer 0:** শুরুর স্কয়ার (দূরত্ব ০)  
-- **Layer 1:** ১ চালে পৌঁছানো যায় এমন সব স্কয়ার  
-- **Layer 2:** ২ চালে পৌঁছানো যায় এমন সব স্কয়ার  
-... এবং এভাবে চলতে থাকে।  
+* **Layer 0** – starting square (distance 0)
+* **Layer 1** – squares reachable in 1 move
+* **Layer 2** – squares reachable in 2 moves
+* … and so on.
 
-যেই মুহূর্তে আমরা প্রথমবার আমাদের গন্তব্য স্কয়ারে পৌঁছাব,  
-আমরা নিশ্চিত থাকতে পারি যে এটিই **সংক্ষিপ্ততম পথ।**
-
----
-
-## 🧩 প্রয়োজনীয় অ্যারে
-
-| নাম | কাজ |
-|-----|------|
-| `dist[8][8]` | শুরুর স্কয়ার থেকে অন্য প্রতিটি স্কয়ারের দূরত্ব (ন্যূনতম চালের সংখ্যা) |
-| `color[8][8]` | প্রতিটি স্কয়ারের অবস্থা ট্র্যাক করে |
-| `queue<pair<int,int>> q` | পরবর্তী ধাপে ভিজিট করার জন্য স্কয়ার সংরক্ষণ করে |
+The first time BFS reaches the target square, we are guaranteed that
+**this is the shortest possible path**.
 
 ---
 
-### 🎨 color এর মানের অর্থ
+## 🧩 Required Arrays
 
-- `-1` → সাদা (ভিজিট করা হয়নি)  
-- `1` → ধূসর (queue তে আছে)  
-- `2` → কালো (প্রসেস করা শেষ)
+| Name                     | Purpose                                                     |
+| ------------------------ | ----------------------------------------------------------- |
+| `dist[8][8]`             | Stores the minimum number of moves from the starting square |
+| `color[8][8]`            | Tracks the visitation state of each square                  |
+| `queue<pair<int,int>> q` | Stores squares to be visited next                           |
 
-## 🧮 PseudoCode
+---
 
-```cpp
-FUNCTION bfs_knight(startR, startC, endR, endC):
-    N = 8
-    DEFINE dist[N][N], color[N][N]
-    DEFINE Queue Q
+## 🎨 Meaning of `color` Values
 
-    FOR r FROM 0 TO N-1:
-        FOR c FROM 0 TO N-1:
-            dist[r][c] = INFINITY
-            color[r][c] = -1
+* **-1 → White** (not visited)
+* **1 → Gray** (in queue, currently being explored)
+* **2 → Black** (fully processed)
 
-    dist[startR][startC] = 0
-    color[startR][startC] = 1
-    ENQUEUE (startR, startC)
 
-    WHILE Q IS NOT EMPTY:
-        (r, c) = DEQUEUE()
-
-        IF (r, c) == (endR, endC):
-            RETURN dist[r][c]
-
-        FOR i FROM 0 TO 7:
-            newR = r + kr[i]
-            newC = c + kc[i]
-
-            IF newR,newC IS ON BOARD AND color[newR][newC] == -1:
-                color[newR][newC] = 1
-                dist[newR][newC] = dist[r][c] + 1
-                ENQUEUE(newR, newC)
-
-        color[r][c] = 2
-
-    RETURN -1
