@@ -1,98 +1,106 @@
-# 🧭 Dijkstra — Weighted Graph এ সংক্ষিপ্ততম পথ
+# 🧭 Dijkstra — Shortest Path in a Weighted Graph
+
+## 🔍 What is the problem?
+
+The goal of this problem is to find the **minimum cost (shortest distance)** path
+from **vertex 1** to **vertex n** in a **weighted undirected graph**.
+
+In simpler terms:
+
+👉 “What is the minimum sum of edge weights required to go from vertex 1 to vertex n, and which path should be taken?”
 
 ---
 
-## 🔍 সমস্যাটি কী?
+## 📥 Input Description
 
-এই সমস্যাটির লক্ষ্য হলো একটি **weighted undirected graph**-এ vertex **1** থেকে vertex **n** পর্যন্ত সর্বনিম্ন (minimum) cost বা দূরত্বের পথ বের করা।
+Format:
 
-অর্থাৎ, আমরা জানতে চাই —  
-👉 “vertex 1 থেকে vertex n পর্যন্ত যেতে কত কম edge weight sum লাগে, এবং কোন পথ দিয়ে যেতে হবে।”
-
----
-
-## 📥 ইনপুট বর্ণনা
-
-n m
-a1 b1 w1
-a2 b2 w2
+```
+n m 
+a1 b1 w1 
+a2 b2 w2 
 ...
 am bm wm
+```
 
+| Symbol   | Meaning                           |
+| -------- | --------------------------------- |
+| **n**    | Number of vertices (2 ≤ n ≤ 10⁵)  |
+| **m**    | Number of edges (0 ≤ m ≤ 10⁵)     |
+| **a, b** | Two vertices connected by an edge |
+| **w**    | Weight of that edge (1 ≤ w ≤ 10⁶) |
 
-| প্রতীক | অর্থ |
-|--------|------|
-| **n** | মোট vertex সংখ্যা (2 ≤ n ≤ 10⁵) |
-| **m** | মোট edge সংখ্যা (0 ≤ m ≤ 10⁵) |
-| **a, b** | দুটি vertex যা একে অপরের সাথে যুক্ত |
-| **w** | ঐ edge-এর ওজন (1 ≤ w ≤ 10⁶) |
-
-> Graph-এ multiple edges এবং loops থাকতে পারে।
-
----
-
-## 📤 আউটপুট বর্ণনা
-
-- যদি **1 → n** পর্যন্ত কোনো পথ না থাকে, প্রিন্ট করতে হবে `-1`  
-- অন্যথায়, **shortest path** টা প্রিন্ট করতে হবে (vertex গুলো ক্রমানুসারে)
+The graph may contain **multiple edges between two vertices** and **loops**.
 
 ---
 
-## 🧠 সমস্যার প্রকৃতি
+## 📤 Output Description
 
-এটি একটি **Single Source Shortest Path (SSSP)** সমস্যা, যেখানে edge weight গুলো **positive**।
-
-- যদি সব edge-এর weight সমান হতো (যেমন = 1), তবে **BFS** দিয়ে সমাধান করা যেত।
-- কিন্তু এখানে weight গুলো ভিন্ন (1 থেকে 10⁶ পর্যন্ত), তাই **Dijkstra’s Algorithm** সবচেয়ে কার্যকর সমাধান।
+* If **no path** exists from `1 → n`, print **-1**
+* Otherwise, print the **shortest path** (sequence of vertices)
 
 ---
 
-## ⚙️ Dijkstra’s Algorithm সংক্ষেপে
+## 🧠 Nature of the Problem
 
-Dijkstra’s Algorithm মূলত একটি **Greedy** approach অনুসরণ করে।
+This is a **Single Source Shortest Path (SSSP)** problem with **positive edge weights**.
 
-1. Start node (vertex 1) থেকে শুরু করা হয়।  
-2. প্রতি বার এমন vertex বেছে নেওয়া হয় যার distance সবচেয়ে ছোট।  
-3. তার সমস্ত neighbour আপডেট করা হয় — যদি নতুন দূরত্বটি কম হয়।  
-4. এই প্রক্রিয়া চলতে থাকে যতক্ষণ না আমরা গন্তব্য vertex **n**-এ পৌঁছাই।
+* If all weights were equal (e.g., = 1), BFS would work.
+* But weights vary from **1 to 10⁶**, so the best algorithm is:
+
+### ✅ Dijkstra’s Algorithm
 
 ---
 
-## 🧩 গ্রাফের উপস্থাপন (Adjacency List)
+## ⚙️ Summary of Dijkstra’s Algorithm
 
-প্রতি vertex একটি list রাখবে যেখানে তার প্রতিবেশী (neighbour) এবং edge weight থাকবে।
+Dijkstra follows a **Greedy approach**:
 
+1. Start from vertex **1**
+2. At each step, pick the vertex with the **smallest distance**
+3. Relax all its neighbors — update their distance if a shorter path is found
+4. Continue until reaching **vertex n**
+
+---
+
+## 🧩 Graph Representation (Adjacency List)
+
+Example:
+
+```
 1 → (2, 2), (4, 1)
 2 → (1, 2), (3, 4), (5, 5)
 4 → (1, 1), (3, 3)
 3 → (2, 4), (4, 3), (5, 1)
 5 → (2, 5), (3, 1)
-
-
----
-
-## 🧮 ভেরিয়েবলসমূহ
-
-| ভেরিয়েবল | বর্ণনা |
-|------------|---------|
-| `dist[i]` | vertex 1 থেকে vertex i পর্যন্ত সর্বনিম্ন দূরত্ব |
-| `orig[i]` | vertex i-এর parent (কোন vertex থেকে এসেছে) |
-| `pq` | একটি min-heap (priority queue), যা সবসময় সবচেয়ে ছোট `dist` যুক্ত vertex দেয় |
-| `INF` | খুব বড় একটি মান, যেমন `1e18` |
+```
 
 ---
 
-## 💡 PseudoCode
+## 🧮 Variables
 
-```text
+| Variable    | Description                                                            |
+| ----------- | ---------------------------------------------------------------------- |
+| **dist[i]** | Minimum distance from vertex 1 to i                                    |
+| **orig[i]** | Parent of i (used to rebuild the path)                                 |
+| **pq**      | Min-heap (priority queue) that always gives the smallest distance node |
+| **INF**     | A very large value (e.g., 1e18)                                        |
+
+---
+
+## 💡 Pseudocode
+
+```
 FUNCTION Dijkstra(n, m, edges):
     Initialize graph as adjacency list
     For each edge (a, b, w):
         Add (b, w) to graph[a]
         Add (a, w) to graph[b]
+
     For i = 1 to n:
         dist[i] = INF
         orig[i] = -1
+
     dist[1] = 0
     pq = priority_queue()
     pq.push((0, 1)) // (distance, vertex)
@@ -100,8 +108,10 @@ FUNCTION Dijkstra(n, m, edges):
     WHILE pq is not empty:
         (d, u) = pq.top()
         pq.pop()
+
         IF d > dist[u]:
             CONTINUE
+
         FOR each (v, w) in graph[u]:
             IF dist[u] + w < dist[v]:
                 dist[v] = dist[u] + w
@@ -116,7 +126,11 @@ FUNCTION Dijkstra(n, m, edges):
         PRINT path
 ```
 
-## 🧩 উদাহরণ ইনপুট
+---
+
+## 🧩 Sample Input
+
+```
 5 6
 1 2 2
 2 5 5
@@ -124,62 +138,60 @@ FUNCTION Dijkstra(n, m, edges):
 1 4 1
 4 3 3
 3 5 1
-
+```
 
 ---
 
-## 🧱 Step-by-Step Visualization
+# 🧱 Step-by-Step Visualization
 
-| ধাপ (Step) | বর্তমান নোড | Neighbors (v, w) | Relaxation | Updated `dist[ ]` | PQ Content |
-|:-----------:|:-------------:|:------------------|:-------------|:----------------------|:-------------|
-| Init | — | — | — | `dist[1]=0`, others=∞ | (0,1) |
-| 1 | 1 | (2,2), (4,1) | dist[2]=2, dist[4]=1 | [0,2,∞,1,∞] | (1,4), (2,2) |
-| 2 | 4 | (1,1), (3,3) | dist[3]=4 | [0,2,4,1,∞] | (2,2), (4,3) |
-| 3 | 2 | (1,2), (5,5), (3,4) | dist[5]=7 (temp), dist[3]=4 (same) | [0,2,4,1,7] | (4,3), (7,5) |
-| 4 | 3 | (2,4), (4,3), (5,1) | dist[5]=5 (better!) | [0,2,4,1,5] | (5,5) |
-| 5 | 5 | done | — | — | — |
+| Step | Current Node | Neighbors (v, w)    | Relaxation            | Updated dist[]          | PQ Content   |
+| ---- | ------------ | ------------------- | --------------------- | ----------------------- | ------------ |
+| Init | —            | —                   | —                     | dist[1] = 0, others = ∞ | (0, 1)       |
+| 1    | 1            | (2,2), (4,1)        | dist[2]=2, dist[4]=1  | [0,2,∞,1,∞]             | (1,4), (2,2) |
+| 2    | 4            | (1,1), (3,3)        | dist[3]=4             | [0,2,4,1,∞]             | (2,2), (4,3) |
+| 3    | 2            | (1,2), (5,5), (3,4) | dist[5]=7, dist[3]=4  | [0,2,4,1,7]             | (4,3), (7,5) |
+| 4    | 3            | (2,4), (4,3), (5,1) | dist[5]=5 (improved!) | [0,2,4,1,5]             | (5,5)        |
+| 5    | 5            | done                | —                     | —                       | —            |
 
 ---
 
 ## 🔄 Path Reconstruction
 
-`orig[]` ট্রেস করলে পাওয়া যায়:
+Tracing back using **orig[]**:
 
+```
 5 ← 3 ← 4 ← 1
+```
 
+So the path is:
 
-অর্থাৎ, পথটি হলো:
+### ✅ Output Path:
 
+```
 1 → 4 → 3 → 5
-
-
----
-
-## ✅ Output
-1 4 3 5
-
+```
 
 ---
 
-## ⏱️ Time Complexity Analysis
+# ⏱️ Time Complexity Analysis
 
-| জটিলতা | ব্যাখ্যা |
-|:----------|:-----------|
-| **Time Complexity** | O((n + m) log n) — কারণ প্রতিটি edge সর্বাধিক একবার relax হয় এবং priority queue ব্যবহার হয় |
-| **Space Complexity** | O(n + m) — adjacency list এবং dist/orig array রাখার জন্য |
+| Complexity | Explanation                                                  |
+| ---------- | ------------------------------------------------------------ |
+| **Time**   | O((n + m) log n) — each edge relaxed at most once + min-heap |
+| **Space**  | O(n + m) — adjacency list + dist[] + orig[]                  |
 
 ---
 
-## 🧾 সারসংক্ষেপ
+# 🧾 Summary
 
-| বিষয় | ব্যাখ্যা |
-|:------|:----------|
-| **সমস্যা** | Weighted Graph এ vertex 1 থেকে vertex n পর্যন্ত সংক্ষিপ্ততম পথ |
-| **অ্যালগরিদম** | Dijkstra’s Algorithm |
-| **গ্রাফ টাইপ** | Undirected, Weighted |
-| **Negative weight edge?** | সমর্থিত নয় |
-| **Data Structure** | Priority Queue (Min-Heap) |
-| **ফলাফল** | Shortest Path অথবা -1 |
+| Topic                 | Explanation                                               |
+| --------------------- | --------------------------------------------------------- |
+| **Problem**           | Find shortest path from vertex 1 to n in a weighted graph |
+| **Algorithm**         | Dijkstra’s Algorithm                                      |
+| **Graph Type**        | Undirected, Weighted                                      |
+| **Negative weights?** | Not supported                                             |
+| **Data Structure**    | Min-heap (priority queue)                                 |
+| **Result**            | Shortest path or -1                                       |
 
 
 
